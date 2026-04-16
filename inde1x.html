@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Incidencias">
+<title>Registro de Incidencias — Óptica</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f2040;
+    --navy-mid: #1a3260;
+    --accent: #3a7bd5;
+    --accent-light: #e8f0fb;
+    --gold: #c8a55a;
+    --red-soft: #e05252;
+    --red-bg: #fdf2f2;
+    --amber: #e08a30;
+    --amber-bg: #fdf6ed;
+    --green: #3a9e6e;
+    --green-bg: #f0faf5;
+    --purple: #7c5cbf;
+    --purple-bg: #f3f0fa;
+    --gray-100: #f4f6f9;
+    --gray-200: #e8ecf2;
+    --gray-400: #8a97b0;
+    --gray-700: #3d4d65;
+    --white: #ffffff;
+    --border: #d0daea;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--gray-100);
+    color: var(--navy);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--navy);
+    padding: 28px 40px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--gold);
+  }
+  .header-left h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.75rem;
+    color: var(--white);
+    letter-spacing: 0.01em;
+  }
+  .header-left p {
+    font-size: 0.78rem;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 3px;
+    font-weight: 500;
+  }
+  .header-right { display: flex; gap: 18px; align-items: center; }
+  .badge-stat { text-align: center; }
+  .badge-stat .num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    color: var(--white);
+    line-height: 1;
+  }
+  .badge-stat .lbl {
+    font-size: 0.65rem;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .divider-v { width: 1px; height: 40px; background: #2a4070; }
+
+  /* SYNC STATUS */
+  .sync-bar {
+    background: var(--navy-mid);
+    padding: 8px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .legend-items { display: flex; gap: 22px; flex-wrap: wrap; }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.75rem;
+    color: #a8bcd8;
+    font-weight: 500;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-red    { background: var(--red-soft); }
+  .dot-amber  { background: var(--amber); }
+  .dot-green  { background: var(--green); }
+  .dot-accent { background: var(--accent); }
+  .dot-purple { background: var(--purple); }
+
+  .sync-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #a8bcd8;
+  }
+  .sync-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gray-400);
+    transition: background 0.3s;
+  }
+  .sync-dot.ok      { background: var(--green); }
+  .sync-dot.loading { background: var(--amber); animation: pulse 1s infinite; }
+  .sync-dot.error   { background: var(--red-soft); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* MAIN */
+  main { padding: 32px 40px; max-width: 1400px; margin: 0 auto; }
+
+  /* STATISTICS PANEL */
+  .stats-panel {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px 16px;
+    box-shadow: 0 2px 12px rgba(15,32,64,0.07);
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: 14px 14px 0 0;
+  }
+  .card-prov::before     { background: var(--accent); }
+  .card-equipo::before   { background: var(--purple); }
+  .card-worker::before   { background: var(--amber); }
+  .card-supplier::before { background: var(--green); }
+
+  .stat-icon { font-size: 1.4rem; display: block; margin-bottom: 10px; }
+  .stat-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    line-height: 1;
+    color: var(--navy);
+  }
+  .stat-value.text-val { font-size: 1rem; line-height: 1.35; margin-top: 2px; }
+  .stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--gray-400);
+    font-weight: 600;
+    margin-top: 7px;
+  }
+  .stat-sub { font-size: 0.74rem; color: var(--gray-400); margin-top: 3px; }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 44px;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 2px 20px rgba(15,32,64,0.09);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .section-header {
+    padding: 18px 28px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  .section-header.oftalmica { background: linear-gradient(135deg, #e8f0fb 0%, #f4f6f9 100%); }
+  .section-header.contacto  { background: linear-gradient(135deg, #eef7f2 0%, #f4f6f9 100%); }
+
+  .section-title { display: flex; align-items: center; gap: 12px; }
+  .section-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  .icon-oftalmica { background: var(--accent-light); }
+  .icon-contacto  { background: #e8f7ef; }
+  .section-title h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--navy);
+  }
+  .section-title span {
+    font-size: 0.72rem;
+    color: var(--gray-400);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .btn-add {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 0.82rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-add:hover  { background: var(--accent); }
+  .btn-add:active { transform: scale(0.97); }
+  .btn-add:disabled { background: var(--gray-400); cursor: not-allowed; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+  thead tr { background: var(--gray-100); border-bottom: 2px solid var(--gray-200); }
+  thead th {
+    padding: 12px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--gray-400);
+    white-space: nowrap;
+  }
+  thead th.col-mal   { color: var(--red-soft); }
+  thead th.col-tarde { color: var(--amber); }
+  thead th.col-falta { color: var(--green); }
+
+  tbody tr { border-bottom: 1px solid var(--gray-200); transition: background 0.15s; }
+  tbody tr:hover { background: var(--gray-100); }
+  tbody tr:last-child { border-bottom: none; }
+
+  td { padding: 10px 12px; vertical-align: middle; color: var(--gray-700); font-size: 0.83rem; }
+  td.date-cell { font-weight: 600; color: var(--navy); white-space: nowrap; font-size: 0.78rem; }
+  td.prov-cell { font-weight: 500; }
+
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 0.71rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-mal            { background: var(--red-bg);      color: var(--red-soft); }
+  .badge-tarde          { background: var(--amber-bg);    color: var(--amber); }
+  .badge-falta          { background: var(--green-bg);    color: var(--green); }
+  .badge-origen-prov    { background: var(--accent-light); color: var(--accent); }
+  .badge-origen-equipo  { background: var(--purple-bg);   color: var(--purple); }
+  .badge-tienda         { background: #fff8e6; color: #8a6500; border: 1px solid #e8d080; }
+
+  .notes-text { color: var(--gray-700); font-size: 0.8rem; line-height: 1.4; }
+
+  .btn-del {
+    background: none;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    color: var(--gray-400);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    font-size: 0.9rem;
+  }
+  .btn-del:hover { border-color: var(--red-soft); color: var(--red-soft); background: var(--red-bg); }
+
+  .empty-row td {
+    text-align: center;
+    padding: 36px;
+    color: var(--gray-400);
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+
+  /* SUMMARY BAR */
+  .summary-bar {
+    display: flex;
+    border-top: 1px solid var(--gray-200);
+    flex-wrap: wrap;
+  }
+  .summary-item {
+    flex: 1;
+    min-width: 90px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .summary-item:not(:last-child) { border-right: 1px solid var(--gray-200); }
+  .s-count { font-family: 'DM Serif Display', serif; font-size: 1.3rem; }
+  .s-mal    { color: var(--red-soft); }
+  .s-tarde  { color: var(--amber); }
+  .s-falta  { color: var(--green); }
+  .s-prov   { color: var(--accent); }
+  .s-equipo { color: var(--purple); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(15,32,64,0.55);
+    backdrop-filter: blur(3px);
+    z-index: 100;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 30px 20px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--white);
+    border-radius: 18px;
+    padding: 32px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 24px 60px rgba(15,32,64,0.22);
+    animation: slideUp 0.25s ease;
+    border-top: 4px solid var(--accent);
+    margin: auto;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .modal h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.25rem;
+    margin-bottom: 22px;
+    color: var(--navy);
+  }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--gray-400);
+    margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    color: var(--navy);
+    outline: none;
+    transition: border-color 0.2s;
+    background: var(--white);
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--accent); }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+
+  .type-selector { display: flex; gap: 10px; flex-wrap: wrap; }
+  .type-option input { display: none; }
+  .type-option label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.15s;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--gray-700);
+  }
+  .type-option input:checked + label.opt-mal   { border-color: var(--red-soft); background: var(--red-bg);   color: var(--red-soft); }
+  .type-option input:checked + label.opt-tarde { border-color: var(--amber);    background: var(--amber-bg); color: var(--amber); }
+  .type-option input:checked + label.opt-falta { border-color: var(--green);    background: var(--green-bg); color: var(--green); }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+  .btn-save {
+    flex: 1;
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-save:hover   { background: var(--accent); }
+  .btn-save:disabled { background: var(--gray-400); cursor: not-allowed; }
+  .btn-cancel {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-cancel:hover { background: var(--gray-200); }
+
+  /* CONFIG WARNING */
+  .config-warning {
+    background: #fff8e6;
+    border: 2px dashed #e8c840;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 28px;
+    font-size: 0.85rem;
+    color: #6b4f00;
+    line-height: 1.6;
+  }
+  .config-warning strong { display: block; font-size: 0.95rem; margin-bottom: 6px; }
+  .config-warning code {
+    background: #fff3cc;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.82rem;
+    word-break: break-all;
+  }
+
+  @media(max-width: 960px) { .stats-panel { grid-template-columns: repeat(2, 1fr); } }
+  @media(max-width: 600px) {
+    header { padding: 18px 16px; flex-wrap: wrap; gap: 10px; }
+    .sync-bar { padding: 8px 16px; }
+    main { padding: 16px 10px; }
+    .stats-panel { grid-template-columns: 1fr 1fr; gap: 10px; }
+    thead th, td { padding: 8px 8px; }
+    .modal { padding: 22px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Registro de Incidencias</h1>
+    <p>Control de recepción de pedidos · Óptica</p>
+  </div>
+  <div class="header-right">
+    <div class="badge-stat">
+      <div class="num" id="total-count">0</div>
+      <div class="lbl">Total incidencias</div>
+    </div>
+    <div class="divider-v"></div>
+    <div class="badge-stat">
+      <div class="num" id="month-count">0</div>
+      <div class="lbl">Este mes</div>
+    </div>
+  </div>
+</header>
+
+<div class="sync-bar">
+  <div class="legend-items">
+    <div class="legend-item"><div class="dot dot-red"></div> Mal estado</div>
+    <div class="legend-item"><div class="dot dot-amber"></div> Llegada tarde</div>
+    <div class="legend-item"><div class="dot dot-green"></div> Falta / Albarán</div>
+    <div class="legend-item"><div class="dot dot-accent"></div> Origen: Proveedor</div>
+    <div class="legend-item"><div class="dot dot-purple"></div> Origen: Equipo</div>
+  </div>
+  <div class="sync-status">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span id="sync-text">Conectando…</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- CONFIG WARNING — se oculta automáticamente cuando SCRIPT_URL está configurada -->
+  <div class="config-warning" id="config-warning">
+    ⚙️ <strong>Configuración pendiente</strong>
+    Sustituye el valor de <code>SCRIPT_URL</code> al inicio del JavaScript por la URL de tu Web App de Google Apps Script.
+    Consulta el archivo <strong>INSTRUCCIONES.md</strong> para los pasos completos.
+  </div>
+
+  <!-- ESTADÍSTICAS GLOBALES -->
+  <div class="stats-panel">
+    <div class="stat-card card-prov">
+      <span class="stat-icon">🏭</span>
+      <div class="stat-value" id="stat-origen-prov">0</div>
+      <div class="stat-label">Incidencias de proveedor</div>
+      <div class="stat-sub">Origen externo · ambas secciones</div>
+    </div>
+    <div class="stat-card card-equipo">
+      <span class="stat-icon">👥</span>
+      <div class="stat-value" id="stat-origen-equipo">0</div>
+      <div class="stat-label">Incidencias de equipo</div>
+      <div class="stat-sub">Origen interno · ambas secciones</div>
+    </div>
+    <div class="stat-card card-worker">
+      <span class="stat-icon">🏅</span>
+      <div class="stat-value text-val" id="stat-top-worker">—</div>
+      <div class="stat-label">Más registros</div>
+      <div class="stat-sub" id="stat-top-worker-sub">Responsable con más incidencias</div>
+    </div>
+    <div class="stat-card card-supplier">
+      <span class="stat-icon">📦</span>
+      <div class="stat-value text-val" id="stat-top-supplier">—</div>
+      <div class="stat-label">Proveedor con más incidencias</div>
+      <div class="stat-sub" id="stat-top-supplier-sub">Proveedor más frecuente</div>
+    </div>
+  </div>
+
+  <!-- LENTES OFTÁLMICAS -->
+  <div class="section">
+    <div class="section-header oftalmica">
+      <div class="section-title">
+        <div class="section-icon icon-oftalmica">👓</div>
+        <div>
+          <h2>Lentes Oftálmicas</h2>
+          <span>Monofocales · Progresivos · Ocupacionales</span>
+        </div>
+      </div>
+      <button class="btn-add" id="btn-add-oftalmica" onclick="openModal('oftalmica')">＋ Añadir incidencia</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha y Hora</th>
+            <th>Tienda</th>
+            <th>Proveedor</th>
+            <th>Responsable</th>
+            <th>Origen</th>
+            <th>Nº Albarán</th>
+            <th class="col-mal">⚠ Mal estado</th>
+            <th class="col-tarde">⏱ Retraso</th>
+            <th class="col-falta">📦 Falta/Albarán</th>
+            <th>Observaciones</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="body-oftalmica">
+          <tr class="empty-row"><td colspan="11">Cargando datos…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="summary-bar">
+      <div class="summary-item"><span class="s-count s-mal"    id="cnt-oftalmica-mal">0</span>    <span style="color:#8a97b0">Mal estado</span></div>
+      <div class="summary-item"><span class="s-count s-tarde"  id="cnt-oftalmica-tarde">0</span>  <span style="color:#8a97b0">Retrasos</span></div>
+      <div class="summary-item"><span class="s-count s-falta"  id="cnt-oftalmica-falta">0</span>  <span style="color:#8a97b0">Faltas/Albarán</span></div>
+      <div class="summary-item"><span class="s-count s-prov"   id="cnt-oftalmica-prov">0</span>   <span style="color:#8a97b0">De proveedor</span></div>
+      <div class="summary-item"><span class="s-count s-equipo" id="cnt-oftalmica-equipo">0</span> <span style="color:#8a97b0">De equipo</span></div>
+    </div>
+  </div>
+
+  <!-- LENTES DE CONTACTO -->
+  <div class="section">
+    <div class="section-header contacto">
+      <div class="section-title">
+        <div class="section-icon icon-contacto">👁️</div>
+        <div>
+          <h2>Lentes de Contacto</h2>
+          <span>Diarias · Quincenales · Mensuales · Especiales</span>
+        </div>
+      </div>
+      <button class="btn-add" id="btn-add-contacto" onclick="openModal('contacto')">＋ Añadir incidencia</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha y Hora</th>
+            <th>Tienda</th>
+            <th>Proveedor</th>
+            <th>Responsable</th>
+            <th>Origen</th>
+            <th>Nº Albarán</th>
+            <th class="col-mal">⚠ Mal estado</th>
+            <th class="col-tarde">⏱ Retraso</th>
+            <th class="col-falta">📦 Falta/Albarán</th>
+            <th>Observaciones</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="body-contacto">
+          <tr class="empty-row"><td colspan="11">Cargando datos…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="summary-bar">
+      <div class="summary-item"><span class="s-count s-mal"    id="cnt-contacto-mal">0</span>    <span style="color:#8a97b0">Mal estado</span></div>
+      <div class="summary-item"><span class="s-count s-tarde"  id="cnt-contacto-tarde">0</span>  <span style="color:#8a97b0">Retrasos</span></div>
+      <div class="summary-item"><span class="s-count s-falta"  id="cnt-contacto-falta">0</span>  <span style="color:#8a97b0">Faltas/Albarán</span></div>
+      <div class="summary-item"><span class="s-count s-prov"   id="cnt-contacto-prov">0</span>   <span style="color:#8a97b0">De proveedor</span></div>
+      <div class="summary-item"><span class="s-count s-equipo" id="cnt-contacto-equipo">0</span> <span style="color:#8a97b0">De equipo</span></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Nueva incidencia</h3>
+
+    <div class="form-group">
+      <label>Fecha</label>
+      <input type="date" id="inp-fecha">
+    </div>
+
+    <div class="form-group">
+      <label>Tienda <span style="color:var(--red-soft)">*</span></label>
+      <select id="inp-tienda" onchange="toggleOtraTienda(this.value)">
+        <option value="">— Seleccionar tienda —</option>
+        <option value="Tienda 1">La Vega</option>
+        <option value="Tienda 2">La Viña</option>
+        <option value="Tienda 3">Distrito</option>
+        <option value="__otra__">Otra (escribir)…</option>
+      </select>
+      <input type="text" id="inp-tienda-otra" placeholder="Nombre de la tienda" style="display:none; margin-top:8px;">
+    </div>
+
+    <div class="form-group">
+      <label>Proveedor <span style="color:var(--red-soft)">*</span></label>
+      <input type="text" id="inp-proveedor" placeholder="Nombre del proveedor">
+    </div>
+
+    <div class="form-group">
+      <label>Responsable de recepción <span style="color:var(--red-soft)">*</span></label>
+      <select id="inp-responsable" onchange="toggleOtroResponsable(this.value)">
+        <option value="">— Seleccionar responsable —</option>
+        <option value="Raul de la Torre">Raul de la Torre</option>
+        <option value="Raquel León">Raquel León</option>
+        <option value="María del Mar León">María del Mar León</option>
+        <option value="Marian">Marian</option>
+        <option value="Menchu">Menchu</option>
+        <option value="Montse">Montse</option>
+        <option value="Natalia">Natalia</option>
+        <option value="Cristina López">Cristina López</option>
+        <option value="__otro__">Otro (escribir manualmente)…</option>
+      </select>
+      <input type="text" id="inp-responsable-otro" placeholder="Escribe el nombre del responsable" style="display:none; margin-top:8px;">
+    </div>
+
+    <div class="form-group">
+      <label>Origen de la incidencia <span style="color:var(--red-soft)">*</span></label>
+      <select id="inp-origen">
+        <option value="">— Seleccionar origen —</option>
+        <option value="Proveedor">Proveedor</option>
+        <option value="Equipo">Equipo</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>N.º Pedido / Albarán</label>
+      <input type="text" id="inp-albaran" placeholder="Ej: 2024-00123">
+    </div>
+
+    <div class="form-group">
+      <label>Tipo de incidencia <span style="color:var(--red-soft)">*</span></label>
+      <div class="type-selector">
+        <div class="type-option">
+          <input type="radio" name="tipo" id="opt-mal" value="mal">
+          <label for="opt-mal" class="opt-mal">⚠ Mal estado</label>
+        </div>
+        <div class="type-option">
+          <input type="radio" name="tipo" id="opt-tarde" value="tarde">
+          <label for="opt-tarde" class="opt-tarde">⏱ Llegada tarde</label>
+        </div>
+        <div class="type-option">
+          <input type="radio" name="tipo" id="opt-falta" value="falta">
+          <label for="opt-falta" class="opt-falta">📦 Falta / Albarán</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Observaciones</label>
+      <textarea id="inp-obs" placeholder="Descripción detallada de la incidencia…"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" id="btn-save" onclick="saveEntry()">Guardar incidencia</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════════
+  //  ⚙️  PEGA AQUÍ TU URL DE WEB APP DE APPS SCRIPT
+  // ═══════════════════════════════════════════════════════
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDHwgEIwwQEt_mF6QizL5_mpcl796jX3F_9Few8OkX-80HTlayETC73EM1qsfe2cSUEQ/exec';
+  // ═══════════════════════════════════════════════════════
+
+  var CONFIGURED = SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbz4CBzK.../exec' && SCRIPT_URL.length > 10;
+  var data = { oftalmica: [], contacto: [] };
+  var currentSection = '';
+  var refreshInterval = null;
+
+  /* ── Ocultar aviso de configuración si URL está puesta ── */
+  if (CONFIGURED) {
+    document.getElementById('config-warning').style.display = 'none';
+  }
+
+  /* ── Helpers ── */
+  function today() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  function setSyncStatus(state, text) {
+    var dot  = document.getElementById('sync-dot');
+    var span = document.getElementById('sync-text');
+    dot.className  = 'sync-dot ' + state;
+    span.textContent = text;
+  }
+
+  function topBy(arr, key) {
+    if (!arr.length) return null;
+    var freq = {};
+    arr.forEach(function(e) {
+      var v = (e[key] || '').trim() || '(sin datos)';
+      freq[v] = (freq[v] || 0) + 1;
+    });
+    return Object.entries(freq).sort(function(a, b) { return b[1] - a[1]; })[0];
+  }
+
+  /* ── Toggle campos extra ── */
+  function toggleOtroResponsable(val) {
+    var el = document.getElementById('inp-responsable-otro');
+    el.style.display = val === '__otro__' ? 'block' : 'none';
+    if (val !== '__otro__') el.value = '';
+  }
+
+  function toggleOtraTienda(val) {
+    var el = document.getElementById('inp-tienda-otra');
+    el.style.display = val === '__otra__' ? 'block' : 'none';
+    if (val !== '__otra__') el.value = '';
+  }
+
+  /* ── Modal ── */
+  function openModal(section) {
+    currentSection = section;
+    document.getElementById('modal-title').textContent =
+      section === 'oftalmica' ? 'Nueva incidencia — Lentes Oftálmicas' : 'Nueva incidencia — Lentes de Contacto';
+    document.getElementById('inp-fecha').value = today();
+    document.getElementById('inp-tienda').value = '';
+    document.getElementById('inp-tienda-otra').value = '';
+    document.getElementById('inp-tienda-otra').style.display = 'none';
+    document.getElementById('inp-proveedor').value = '';
+    document.getElementById('inp-responsable').value = '';
+    document.getElementById('inp-responsable-otro').value = '';
+    document.getElementById('inp-responsable-otro').style.display = 'none';
+    document.getElementById('inp-origen').value = '';
+    document.getElementById('inp-albaran').value = '';
+    document.getElementById('inp-obs').value = '';
+    document.querySelectorAll('input[name="tipo"]').forEach(function(r) { r.checked = false; });
+    document.getElementById('btn-save').disabled = false;
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+
+  document.getElementById('modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  /* ── Guardar ── */
+  function saveEntry() {
+    var fecha       = document.getElementById('inp-fecha').value;
+    var selTienda   = document.getElementById('inp-tienda').value;
+    var otraTienda  = document.getElementById('inp-tienda-otra').value.trim();
+    var tienda      = selTienda === '__otra__' ? otraTienda : selTienda;
+    var prov        = document.getElementById('inp-proveedor').value.trim();
+    var selResp     = document.getElementById('inp-responsable').value;
+    var otroResp    = document.getElementById('inp-responsable-otro').value.trim();
+    var responsable = selResp === '__otro__' ? otroResp : selResp;
+    var origen      = document.getElementById('inp-origen').value;
+    var albaran     = document.getElementById('inp-albaran').value.trim();
+    var obs         = document.getElementById('inp-obs').value.trim();
+    var tipoEl      = document.querySelector('input[name="tipo"]:checked');
+
+    if (!fecha || !tienda || !prov || !responsable || !origen || !tipoEl) {
+      alert('Por favor, completa todos los campos obligatorios:\nFecha, Tienda, Proveedor, Responsable, Origen y Tipo de incidencia.');
+      return;
+    }
+
+    var entry = {
+      id:          Date.now(),
+      fecha:       fecha,
+      tienda:      tienda,
+      prov:        prov,
+      responsable: responsable,
+      origen:      origen,
+      albaran:     albaran,
+      tipo:        tipoEl.value,
+      obs:         obs
+    };
+
+    document.getElementById('btn-save').disabled = true;
+    document.getElementById('btn-save').textContent = 'Guardando…';
+
+    if (!CONFIGURED) {
+      // Modo demo sin conexión
+      data[currentSection].push(entry);
+      renderTable(currentSection);
+      updateCounters();
+      closeModal();
+      return;
+    }
+
+    setSyncStatus('loading', 'Guardando…');
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'add', section: currentSection, entry: entry })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.ok) {
+        loadData();
+        closeModal();
+      } else {
+        alert('Error al guardar: ' + (res.error || 'desconocido'));
+        document.getElementById('btn-save').disabled = false;
+        document.getElementById('btn-save').textContent = 'Guardar incidencia';
+      }
+    })
+    .catch(function(err) {
+      setSyncStatus('error', 'Error de conexión');
+      alert('No se pudo conectar con Google Sheets. Comprueba la URL configurada.');
+      document.getElementById('btn-save').disabled = false;
+      document.getElementById('btn-save').textContent = 'Guardar incidencia';
+    });
+  }
+
+  /* ── Eliminar ── */
+  function deleteEntry(section, id) {
+    if (!confirm('¿Eliminar esta incidencia?')) return;
+
+    if (!CONFIGURED) {
+      data[section] = data[section].filter(function(e) { return e.id !== id; });
+      renderTable(section);
+      updateCounters();
+      return;
+    }
+
+    setSyncStatus('loading', 'Eliminando…');
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'delete', section: section, id: id })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function() { loadData(); })
+    .catch(function() { setSyncStatus('error', 'Error al eliminar'); });
+  }
+
+  /* ── Cargar datos desde Google Sheets ── */
+  function loadData() {
+    if (!CONFIGURED) {
+      setSyncStatus('error', 'Sin configurar');
+      ['oftalmica','contacto'].forEach(function(s) { renderTable(s); });
+      updateCounters();
+      return;
+    }
+
+    setSyncStatus('loading', 'Actualizando…');
+    fetch(SCRIPT_URL)
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.error) throw new Error(res.error);
+      data.oftalmica = res.oftalmica || [];
+      data.contacto  = res.contacto  || [];
+      ['oftalmica','contacto'].forEach(function(s) { renderTable(s); });
+      updateCounters();
+      var now = new Date();
+      setSyncStatus('ok', 'Actualizado ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0'));
+    })
+    .catch(function(err) {
+      setSyncStatus('error', 'Error de conexión');
+    });
+  }
+
+  /* ── Render tabla ── */
+  function renderTable(section) {
+    var tbody = document.getElementById('body-' + section);
+    var rows  = data[section];
+
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="11">Sin incidencias registradas.</td></tr>';
+      return;
+    }
+
+    var sorted = rows.slice().sort(function(a, b) {
+      return (b.fechaHora || b.fecha || '').localeCompare(a.fechaHora || a.fecha || '');
+    });
+
+    tbody.innerHTML = sorted.map(function(e) {
+      var badgeMap = {
+        mal:   '<span class="type-badge badge-mal">⚠ Mal estado</span>',
+        tarde: '<span class="type-badge badge-tarde">⏱ Tarde</span>',
+        falta: '<span class="type-badge badge-falta">📦 Falta/Albarán</span>'
+      };
+      var malCell   = e.tipo === 'mal'   ? badgeMap.mal   : '—';
+      var tardeCell = e.tipo === 'tarde' ? badgeMap.tarde : '—';
+      var faltaCell = e.tipo === 'falta' ? badgeMap.falta : '—';
+      var origenBadge = e.origen === 'Equipo'
+        ? '<span class="type-badge badge-origen-equipo">👥 Equipo</span>'
+        : '<span class="type-badge badge-origen-prov">🏭 Proveedor</span>';
+      var tiendaBadge = e.tienda
+        ? '<span class="type-badge badge-tienda">🏪 ' + e.tienda + '</span>'
+        : '—';
+      var fechaDisplay = e.fechaHora || (e.fecha ? e.fecha.split('-').reverse().join('/') : '—');
+
+      return '<tr>' +
+        '<td class="date-cell">' + fechaDisplay + '</td>' +
+        '<td>' + tiendaBadge + '</td>' +
+        '<td class="prov-cell">' + (e.prov || '—') + '</td>' +
+        '<td>' + (e.responsable || '—') + '</td>' +
+        '<td>' + origenBadge + '</td>' +
+        '<td>' + (e.albaran || '—') + '</td>' +
+        '<td>' + malCell + '</td>' +
+        '<td>' + tardeCell + '</td>' +
+        '<td>' + faltaCell + '</td>' +
+        '<td><span class="notes-text">' + (e.obs || '—') + '</span></td>' +
+        '<td><button class="btn-del" title="Eliminar" onclick="deleteEntry(\'' + section + '\', ' + e.id + ')">✕</button></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  /* ── Summary bar ── */
+  function updateSummary(section) {
+    var rows = data[section];
+    ['mal','tarde','falta'].forEach(function(t) {
+      document.getElementById('cnt-' + section + '-' + t).textContent =
+        rows.filter(function(r) { return r.tipo === t; }).length;
+    });
+    document.getElementById('cnt-' + section + '-prov').textContent =
+      rows.filter(function(r) { return r.origen === 'Proveedor'; }).length;
+    document.getElementById('cnt-' + section + '-equipo').textContent =
+      rows.filter(function(r) { return r.origen === 'Equipo'; }).length;
+  }
+
+  /* ── Contadores globales + estadísticas ── */
+  function updateCounters() {
+    var all = data.oftalmica.concat(data.contacto);
+
+    document.getElementById('total-count').textContent = all.length;
+    var thisMonth = today().slice(0, 7);
+    document.getElementById('month-count').textContent =
+      all.filter(function(e) { return (e.fecha || '').startsWith(thisMonth); }).length;
+
+    document.getElementById('stat-origen-prov').textContent =
+      all.filter(function(e) { return e.origen === 'Proveedor'; }).length;
+    document.getElementById('stat-origen-equipo').textContent =
+      all.filter(function(e) { return e.origen === 'Equipo'; }).length;
+
+    var topWorker = topBy(all, 'responsable');
+    if (topWorker) {
+      document.getElementById('stat-top-worker').textContent     = topWorker[0];
+      document.getElementById('stat-top-worker-sub').textContent = topWorker[1] + ' incidencia' + (topWorker[1] !== 1 ? 's' : '') + ' registradas';
+    } else {
+      document.getElementById('stat-top-worker').textContent     = '—';
+      document.getElementById('stat-top-worker-sub').textContent = 'Responsable con más incidencias';
+    }
+
+    var topSupplier = topBy(all, 'prov');
+    if (topSupplier) {
+      document.getElementById('stat-top-supplier').textContent     = topSupplier[0];
+      document.getElementById('stat-top-supplier-sub').textContent = topSupplier[1] + ' incidencia' + (topSupplier[1] !== 1 ? 's' : '') + ' acumuladas';
+    } else {
+      document.getElementById('stat-top-supplier').textContent     = '—';
+      document.getElementById('stat-top-supplier-sub').textContent = 'Proveedor más frecuente';
+    }
+
+    ['oftalmica','contacto'].forEach(updateSummary);
+  }
+
+  /* ── Arranque y refresco automático cada 60 s ── */
+  window.addEventListener('load', function() {
+    loadData();
+    if (CONFIGURED) {
+      refreshInterval = setInterval(loadData, 60000);
+    }
+  });
+</script>
+</body>
+</html>
