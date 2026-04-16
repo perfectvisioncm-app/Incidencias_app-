@@ -728,7 +728,7 @@
   var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDHwgEIwwQEt_mF6QizL5_mpcl796jX3F_9Few8OkX-80HTlayETC73EM1qsfe2cSUEQ/exec';
   // ═══════════════════════════════════════════════════════
 
-  var CONFIGURED = SCRIPT_URL !== 'PEGA_AQUI_TU_URL' && SCRIPT_URL.length > 10;
+  var CONFIGURED = SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbz4CBzK.../exec' && SCRIPT_URL.length > 10;
   var data = { oftalmica: [], contacto: [] };
   var currentSection = '';
   var refreshInterval = null;
